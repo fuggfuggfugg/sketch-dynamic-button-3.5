@@ -1,0 +1,27 @@
+{
+  "name": "DynamicButton3.5",
+  "description": "A newer version of the DynamicButton for Sketch 3.5",
+  "author": "Fugg Fugg",
+  "authorEmail": "fuggfuggfugg@gmail.com",
+  "homepage": "https://github.com/fuggfuggfugg/DynamicButton3.5",
+  "version": 1.0,
+  "bundleVersion": 1.0,
+  "compatibleVersion": 3.5,
+  "identifier": "me.fugg.dynamicbutton3.5",
+  "commands": [
+    {
+      "script": "script.cocoascript",
+      "handler": "onRun",
+      "shortcut": "cmd j",
+      "name": "Dynamic Button 3.5",
+      "identifier": "dynamicbutton3.5"
+    }
+  ],
+  "menu": {
+    "isRoot": true,
+    "items": [
+      "dynamicbutton3.5"
+    ],
+    "title": "DynamicButton3.5"
+  }
+}
