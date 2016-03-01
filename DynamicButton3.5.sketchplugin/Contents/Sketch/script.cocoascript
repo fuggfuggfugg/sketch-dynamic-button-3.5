@@ -2,6 +2,7 @@
 /*
   Original code from https://github.com/ddwht/sketch-dynamic-button
   Fixed for Sketch 3.5 by Bohemian Coding
+  UPDATE: Mar 1: 2015 - Issue 1
 */
 
 function addLayerOfRectType(parent,rect) {
@@ -101,11 +102,17 @@ var onRun = function(context){
         var frame = [BG frame]
         [frame setHeight:buttonDimensions.totalHeight]
         [frame  setWidth:buttonDimensions.totalWidth]
-        frame.x = 0
-        frame.y = 0
-      
-        currentLayer.frame().x = buttonDimensions.offsetLeft;
-        currentLayer.frame().y = buttonDimensions.offsetTop;
+        
+        var clframe = [currentLayer frame]
+        var layerX = [clframe x],
+            layerY = [clframe y]
+
+        frame.x = layerX - buttonDimensions.offsetLeft;
+        frame.y = layerY - buttonDimensions.offsetTop;
+
+        //currentLayer.frame().x = buttonDimensions.offsetLeft;
+        //currentLayer.frame().y = buttonDimensions.offsetTop;
+
       } else {
         // Create group and background
         var group = MSLayerGroup.new();
