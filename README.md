@@ -2,10 +2,6 @@
 
 Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allows to create buttons with fixed paddings no matter what text you add. 
 
-## Update 
-Version 1: Added support for 3.5 
-
-
 ## Documentation
 
 1: Remove the old dynamic button plugin. Click on [Plugins>Manage Plugins..](https://i.imgur.com/iCCyNDv.png)
@@ -16,6 +12,12 @@ Version 1: Added support for 3.5
 
 
 3: For more info refer to the old [README](https://github.com/ddwht/sketch-dynamic-button/blob/master/README.md) 
+
+
+## Update 
+March 1, 2016: Based on suggestion by @aaronmw in Issue #1, The BG layer will now redraw around the text and not the other way round. 
+![sketch dynamic button](https://cloud.githubusercontent.com/assets/5616123/13418613/13e8a00c-df45-11e5-9957-f16ec23b773f.gif)
+
 
 
 ## Detailed Update:
