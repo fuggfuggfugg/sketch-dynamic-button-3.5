@@ -25,7 +25,7 @@ Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allow
 
 ## Detailed Update:
 
-I was the one to initially log the issue [here](https://github.com/ddwht/sketch-dynamic-button/issues/30) but for I think this repo has been abandoned. So I took it upon myself to have a quick check. I had no clue whatsoever but soon I managed to atleast run the script via the Custom plugin option in Sketch. I then used console.app in mac to view the log messages. 
+I had initially logged the issue [here](https://github.com/ddwht/sketch-dynamic-button/issues/30) but the old repo seems to have been abandoned. Thought I'd take a stab at it. I had no clue whatsoever but soon I managed to atleast run the script via the Custom plugin option in Sketch. I then used console.app in mac to view the log messages. 
 
 [This post](http://hackingui.com/design/how-to-create-a-sketch-plugin/) was of great help to get me started. The [Sketch Plugins Cookbook](https://github.com/turbobabr/Sketch-Plugins-Cookbook) was immensely helpful. The plugin library by Sketch wasn't very helpful honestly. Soon after debugging and logging I isolated the issue to the 'resizeRoot' 
 
