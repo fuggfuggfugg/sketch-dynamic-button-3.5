@@ -23,18 +23,6 @@ Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allow
 
 
 
-## Detailed Update:
-
-I had initially logged the issue [here](https://github.com/ddwht/sketch-dynamic-button/issues/30) but the old repo seems to have been abandoned. Thought I'd take a stab at it. I had no clue whatsoever but soon I managed to atleast run the script via the Custom plugin option in Sketch. I then used console.app in mac to view the log messages. 
-
-[This post](http://hackingui.com/design/how-to-create-a-sketch-plugin/) was of great help to get me started. The [Sketch Plugins Cookbook](https://github.com/turbobabr/Sketch-Plugins-Cookbook) was immensely helpful. The plugin library by Sketch wasn't very helpful honestly. Soon after debugging and logging I isolated the issue to the 'resizeRoot' 
-
-    resizeRoot: Available in Sketch 3.4 and below, 
-    removed in Sketch 3.5 (see resizeToFitChildrenWithOption:). Resizes the group to fit around all of its sub-layers.
-
-I then played around with it and go a single button working however for multiple text layers, it was adding the BG layer on top of the text. The old layer was somehow only working for the first layer in the loop. I simply switch the logic to insert the BF layer first and then insert my text later. That seemed to have worked. 
-
-Tested it out manually, working well so far. 
 
 
 
