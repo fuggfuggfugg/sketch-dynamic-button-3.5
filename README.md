@@ -1,4 +1,4 @@
-# Dynamic button plugin for Sketch.app 3.5
+# Dynamic button plugin for Sketch.app 3.5, 3.6 & onward
 
 Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allows to create buttons with fixed paddings no matter what text you add. 
 
