@@ -1,5 +1,9 @@
 ## Update 
 * May 2016 - **Supports 3.8** 👍 👍 👍 👍 
+  * Remove Old Version of the Plugin.
+  * Download Zip (See Image), Unzip and Double Click on the plugin to install.
+![screen shot 2016-05-19 at 11 48 33 pm](https://cloud.githubusercontent.com/assets/5616123/15416705/654f216c-1e1c-11e6-8713-f0c6a3b6a8a0.png)
+
 
 * March 2016 - Supports 3.6 
 
