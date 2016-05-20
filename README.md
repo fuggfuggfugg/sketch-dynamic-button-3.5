@@ -1,5 +1,5 @@
 ## Update 
-* May 2016 - Supports 3.7.2
+* May 2016 - **Supports 3.8** 👍 👍 👍 👍 
 
 * March 2016 - Supports 3.6 
 
