@@ -2,7 +2,8 @@
 /*
   Original code from https://github.com/ddwht/sketch-dynamic-button
   Fixed for Sketch 3.5 by Bohemian Coding
-  UPDATE: Mar 1: 2015 - Issue 1
+  UPDATE: Mar 1: 2016 - Issue 1
+  UPDATE: May 19: 2016 - Update for 3.8
 */
 
 function addLayerOfRectType(parent,rect) {
@@ -12,8 +13,16 @@ function addLayerOfRectType(parent,rect) {
     rectShape.frame = MSRect.rectWithRect(rect);
     var container=MSShapeGroup.alloc().init();
     container.addLayers([rectShape]);
-    var fill = container.style().fills().addNewStylePart();
-    fill.color = MSColor.colorWithSVGString("#ddd");
+
+//     var fill = container.style().fills().addNewStylePart();
+//     fill.color = MSColor.colorWithSVGString("#ddd");
+
+    var blackColor = MSColor.colorWithNSColor(NSColor.colorWithGray(0.5))
+    var fill = MSStyleFill.alloc().init()
+    fill.fillType = 0
+    fill.colorGeneric = blackColor
+    container.style().fills().addObject(fill)
+
     container.resizeToFitChildrenWithOption(1);
     parent.addLayers([container]);
     return container;
@@ -140,3 +149,4 @@ var onRun = function(context){
     }
   }
 }
+
