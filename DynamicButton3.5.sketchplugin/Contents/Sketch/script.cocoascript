@@ -4,6 +4,7 @@
   Fixed for Sketch 3.5 by Bohemian Coding
   UPDATE: Mar 1: 2016 - Issue 1
   UPDATE: May 19: 2016 - Update for 3.8
+  UPDATE: Jul 20: 2016 - Update for 39
 */
 
 function addLayerOfRectType(parent,rect) {
@@ -14,14 +15,7 @@ function addLayerOfRectType(parent,rect) {
     var container=MSShapeGroup.alloc().init();
     container.addLayers([rectShape]);
 
-//     var fill = container.style().fills().addNewStylePart();
-//     fill.color = MSColor.colorWithSVGString("#ddd");
-
-    var blackColor = MSColor.colorWithNSColor(NSColor.colorWithGray(0.5))
-    var fill = MSStyleFill.alloc().init()
-    fill.fillType = 0
-    fill.colorGeneric = blackColor
-    container.style().fills().addObject(fill)
+    container.style().addStylePartOfType(0);
 
     container.resizeToFitChildrenWithOption(1);
     parent.addLayers([container]);
@@ -57,8 +51,9 @@ function getButtonDimensionsForLayer(layer){
   var offsetTop,offsetRight,offsetRight,offsetLeft;
   switch(splitLayer.length) {
     case 1: 
-      layer.name = '0:0:0:0';
-      offsetTop = offsetRight = offsetBottom = offsetLeft = 0;
+      layer.name = '10:20';
+      offsetTop = offsetBottom = 10;
+      offsetRight = offsetLeft = 20;
       break;
     case 2:
       offsetTop = offsetBottom = parseInt(splitLayer[0]) || 0;
@@ -149,4 +144,3 @@ var onRun = function(context){
     }
   }
 }
-
