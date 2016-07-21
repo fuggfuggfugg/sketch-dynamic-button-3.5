@@ -8,7 +8,8 @@ Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allow
 
 
 ## Updates 
-* [**Supports 3.8** 👍 👍 👍 👍 (Click to Download)](https://github.com/fuggfuggfugg/sketch-dynamic-button-3.5/archive/master.zip)
+
+* July 20 - [**Supports 39** 👍 👍 👍 👍 (Click to Download)](https://github.com/fuggfuggfugg/sketch-dynamic-button-3.5/archive/master.zip)
 
 
 ## Installation
