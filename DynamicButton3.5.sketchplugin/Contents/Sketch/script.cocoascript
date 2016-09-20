@@ -5,6 +5,7 @@
   UPDATE: Mar 1: 2016 - Issue 1
   UPDATE: May 19: 2016 - Update for 3.8
   UPDATE: Jul 20: 2016 - Update for 39
+  UPDATE: Sep 19: 2016 - Better error handling
 */
 
 function addLayerOfRectType(parent,rect) {
@@ -16,6 +17,7 @@ function addLayerOfRectType(parent,rect) {
     container.addLayers([rectShape]);
 
     container.style().addStylePartOfType(0);
+    var fill = container.style().fills().firstObject()
 
     container.resizeToFitChildrenWithOption(1);
     parent.addLayers([container]);
@@ -51,9 +53,9 @@ function getButtonDimensionsForLayer(layer){
   var offsetTop,offsetRight,offsetRight,offsetLeft;
   switch(splitLayer.length) {
     case 1: 
-      layer.name = '10:20';
-      offsetTop = offsetBottom = 10;
-      offsetRight = offsetLeft = 20;
+      defVal = parseInt(splitLayer[0]) || 20;
+      layer.name = defVal + ':' + defVal;
+      offsetTop = offsetBottom = offsetRight = offsetLeft = defVal;
       break;
     case 2:
       offsetTop = offsetBottom = parseInt(splitLayer[0]) || 0;
@@ -87,36 +89,32 @@ function getButtonDimensionsForLayer(layer){
   }
 }
 
-var onRun = function(context){
-  var selection = context.selection;
-  var doc = context.document;
+// recursive for future 
+function recursiveDynamic(selection){
+  for (var i=0; i < [selection count]; i++) {
+    var currentLayer = [selection objectAtIndex:i],
+        parentGroup = [currentLayer parentGroup];
 
-  if ([selection count] == 0) {
-    alert('You need to select at least one layer', 'Selection is empty');
-  } else {
-    for (var i=0; i < [selection count]; i++) {
-      var currentLayer = [selection objectAtIndex:i],
-          parentGroup = [currentLayer parentGroup];
+    if( [currentLayer class] ==  MSTextLayer ){
 
       var BG = getBackgroundForGroup(parentGroup),
-          buttonDimensions = getButtonDimensionsForLayer(currentLayer)
+        buttonDimensions = getButtonDimensionsForLayer(currentLayer)
 
       if (BG) {
-        // Update background
+      // Update background
         var frame = [BG frame]
         [frame setHeight:buttonDimensions.totalHeight]
         [frame  setWidth:buttonDimensions.totalWidth]
-        
+
         var clframe = [currentLayer frame]
         var layerX = [clframe x],
-            layerY = [clframe y]
+        layerY = [clframe y]
 
         frame.x = layerX - buttonDimensions.offsetLeft;
         frame.y = layerY - buttonDimensions.offsetTop;
 
         //currentLayer.frame().x = buttonDimensions.offsetLeft;
         //currentLayer.frame().y = buttonDimensions.offsetTop;
-
       } else {
         // Create group and background
         var group = MSLayerGroup.new();
@@ -134,13 +132,24 @@ var onRun = function(context){
         [frame  setWidth:buttonDimensions.totalWidth]
         frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
         frame.y = buttonDimensions.y - buttonDimensions.offsetTop
-  
+
 
         parentGroup.removeLayer(currentLayer);
         var s = group.addLayers([currentLayer]);
         currentLayer.setIsSelected(false);
         group.resizeToFitChildrenWithOption(1);
-      }
-    }
+      } 
+    }      
+  }  
+}
+
+var onRun = function(context){
+  var selection = context.selection;
+  var doc = context.document;
+
+  if ([selection count] == 0) {
+    alert('You need to select a Text layer', 'Selection is empty');
+  } else {
+    recursiveDynamic(selection)
   }
 }
