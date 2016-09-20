@@ -11,9 +11,9 @@ Dynamic button plug-in for [Sketch.app](http://bohemiancoding.com/sketch/) allow
 
 * Sept 20 - [**Supports 39.1** 👍 👍 👍 👍 (Click to Download)](https://github.com/fuggfuggfugg/sketch-dynamic-button-3.5/archive/master.zip)
 
-* Also supports single values in the text layer. ie 15 + <Cmd+J> will create butotn with 15px padding. 
-
-* Plugin now applies to only text layer and ignores any other layers. This way if you select the BG layer by mistake and run dynamic button it wont create extra folders around the BG layer. Also if you select multiple layers and run dynamic button it will only apply the changes to the text layer and ignore any other layers.
+New Features [Demo](https://cloud.githubusercontent.com/assets/5616123/18656128/94614d62-7ebc-11e6-870e-5314fa1bd2ec.gif)
+* Also supports single values in the text layer. ie 15 + <Cmd+J> will create button with 15px padding. 
+* Plugin now applies to only text layer and ignores any other layers. This way if you select the BG layer by mistake and run dynamic button it wont create extra folders around the BG layer. Also if you select multiple layers and run dynamic button it will only apply the changes to the text layer and ignore any other layers. You do not need to worry about making any mistakes and reverting them back.
 
 
 ## Installation
