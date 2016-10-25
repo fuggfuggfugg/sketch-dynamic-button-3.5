@@ -6,6 +6,7 @@
   UPDATE: May 19: 2016 - Update for 3.8
   UPDATE: Jul 20: 2016 - Update for 39
   UPDATE: Sep 19: 2016 - Better error handling
+  UPDATE: Oct 25: 2016 - Remove check for Text Layer
 */
 
 function addLayerOfRectType(parent,rect) {
@@ -95,7 +96,7 @@ function recursiveDynamic(selection){
     var currentLayer = [selection objectAtIndex:i],
         parentGroup = [currentLayer parentGroup];
 
-    if( [currentLayer class] ==  MSTextLayer ){
+    //if( [currentLayer class] ==  MSTextLayer ){
 
       var BG = getBackgroundForGroup(parentGroup),
         buttonDimensions = getButtonDimensionsForLayer(currentLayer)
@@ -140,7 +141,7 @@ function recursiveDynamic(selection){
         group.resizeToFitChildrenWithOption(1);
       } 
     }      
-  }  
+  //}  
 }
 
 var onRun = function(context){
