@@ -7,18 +7,30 @@
   UPDATE: Jul 20: 2016 - Update for 39
   UPDATE: Sep 19: 2016 - Better error handling
   UPDATE: Oct 25: 2016 - Remove check for Text Layer
+  UPDATE: Dec 10: 2016 - Add Default values so users can customize
 */
+
+var buttonColor = [255,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [255,0,0,50]
+var defaultPadding = 20                    // replace with integer value.
+var cornerRadius = 5                       // replace with integer value.
 
 function addLayerOfRectType(parent,rect) {
     var style = MSDefaultStyle.defaultStyle();
     var rectShape=MSRectangleShape.alloc().init();
-    rectShape.cornerRadiusFloat = 5;
+    rectShape.cornerRadiusFloat = cornerRadius;
     rectShape.frame = MSRect.rectWithRect(rect);
     var container=MSShapeGroup.alloc().init();
     container.addLayers([rectShape]);
-
     container.style().addStylePartOfType(0);
-    var fill = container.style().fills().firstObject()
+
+    if (buttonColor && buttonColor.length == 4) {
+      var fill = container.style().fills().firstObject();
+      red = buttonColor[0]/255;
+      green = buttonColor[1]/255;
+      blue = buttonColor[2]/255;
+      opacity = buttonColor[3]/100;
+      fill.color = MSColor.colorWithRed_green_blue_alpha(red,green,blue,opacity);
+    }
 
     container.resizeToFitChildrenWithOption(1);
     parent.addLayers([container]);
@@ -49,12 +61,12 @@ function getButtonDimensionsForLayer(layer){
       layerWidth =  [frame width],
       layerX =      [frame x],
       layerY =      [frame y]
-
+  
   var splitLayer = [layer name].split(':');
   var offsetTop,offsetRight,offsetRight,offsetLeft;
   switch(splitLayer.length) {
     case 1: 
-      defVal = parseInt(splitLayer[0]) || 20;
+      defVal = parseInt(splitLayer[0]) || defaultPadding;
       layer.name = defVal + ':' + defVal;
       offsetTop = offsetBottom = offsetRight = offsetLeft = defVal;
       break;
@@ -99,7 +111,7 @@ function recursiveDynamic(selection){
     //if( [currentLayer class] ==  MSTextLayer ){
 
       var BG = getBackgroundForGroup(parentGroup),
-        buttonDimensions = getButtonDimensionsForLayer(currentLayer)
+      buttonDimensions = getButtonDimensionsForLayer(currentLayer)
 
       if (BG) {
       // Update background
@@ -113,9 +125,6 @@ function recursiveDynamic(selection){
 
         frame.x = layerX - buttonDimensions.offsetLeft;
         frame.y = layerY - buttonDimensions.offsetTop;
-
-        //currentLayer.frame().x = buttonDimensions.offsetLeft;
-        //currentLayer.frame().y = buttonDimensions.offsetTop;
       } else {
         // Create group and background
         var group = MSLayerGroup.new();
@@ -133,8 +142,7 @@ function recursiveDynamic(selection){
         [frame  setWidth:buttonDimensions.totalWidth]
         frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
         frame.y = buttonDimensions.y - buttonDimensions.offsetTop
-
-
+        
         parentGroup.removeLayer(currentLayer);
         var s = group.addLayers([currentLayer]);
         currentLayer.setIsSelected(false);
