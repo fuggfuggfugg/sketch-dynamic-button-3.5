@@ -10,8 +10,8 @@
   UPDATE: Dec 10: 2016 - Add Default values so users can customize
 */
 
-var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [255,0,0,50]
-var defaultPadding = 20                    // replace with integer value.
+var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
+var defaultPadding = '20:20'               // replace with string value eg: '20:20' or '20:50:20:50'
 var cornerRadius = 5                       // replace with integer value.
 
 function addLayerOfRectType(parent,rect) {
@@ -62,11 +62,15 @@ function getButtonDimensionsForLayer(layer){
       layerX =      [frame x],
       layerY =      [frame y]
   
+  if (defaultPadding) {
+    layer.name = defaultPadding;
+  };
+
   var splitLayer = [layer name].split(':');
   var offsetTop,offsetRight,offsetRight,offsetLeft;
   switch(splitLayer.length) {
     case 1: 
-      defVal = parseInt(splitLayer[0]) || defaultPadding;
+      defVal = parseInt(splitLayer[0]) || 20;
       layer.name = defVal + ':' + defVal;
       offsetTop = offsetBottom = offsetRight = offsetLeft = defVal;
       break;
