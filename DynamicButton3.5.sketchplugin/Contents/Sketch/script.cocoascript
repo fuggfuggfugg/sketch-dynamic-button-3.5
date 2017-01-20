@@ -8,13 +8,14 @@
   UPDATE: Sep 19: 2016 - Better error handling
   UPDATE: Oct 25: 2016 - Remove check for Text Layer
   UPDATE: Dec 10: 2016 - Add Default values so users can customize
+  UPDATE: Jan 19: 2017 - Add Default value for border and transparent color
 */
 
-var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
+var buttonColor = null        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
 var cornerRadius = 5                       // replace with integer value.
-// var defaultPadding = '20:20'               // replace with string value eg: '20:20' or '20:50:20:50'
-
-
+// var defaultPadding = '20:20'            // replace with string value eg: '20:20' or '20:50:20:50'
+var borderColor = [130,130,130,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100] 
+var borderThickness = 2
 function addLayerOfRectType(parent,rect) {
     var style = MSDefaultStyle.defaultStyle();
     var rectShape=MSRectangleShape.alloc().init();
@@ -22,9 +23,9 @@ function addLayerOfRectType(parent,rect) {
     rectShape.frame = MSRect.rectWithRect(rect);
     var container=MSShapeGroup.alloc().init();
     container.addLayers([rectShape]);
-    container.style().addStylePartOfType(0);
 
     if (buttonColor && buttonColor.length == 4) {
+      container.style().addStylePartOfType(0);
       var fill = container.style().fills().firstObject();
       red = buttonColor[0]/255;
       green = buttonColor[1]/255;
@@ -33,6 +34,17 @@ function addLayerOfRectType(parent,rect) {
       fill.color = MSColor.colorWithRed_green_blue_alpha(red,green,blue,opacity);
     }
 
+    if (borderColor && borderColor.length == 4) {
+      container.style().addStylePartOfType(1)
+      var border = container.style().borders().firstObject();
+      red = borderColor[0]/255;
+      green = borderColor[1]/255;
+      blue = borderColor[2]/255;
+      opacity = borderColor[3]/100;
+      border.color = MSColor.colorWithRed_green_blue_alpha(red,green,blue,opacity);
+      border.thickness = borderThickness; //change thickness
+    }
+    
     container.resizeToFitChildrenWithOption(1);
     parent.addLayers([container]);
     return container;
