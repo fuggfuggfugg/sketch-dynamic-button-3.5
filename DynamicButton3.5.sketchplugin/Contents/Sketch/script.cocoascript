@@ -9,7 +9,8 @@
   UPDATE: Oct 25: 2016 - Remove check for Text Layer
   UPDATE: Dec 10: 2016 - Add Default values so users can customize
   UPDATE: Feb 12: 2016 - Symbols First Pass
-  UPDATE: Mar 1: 2016 - Symbols multi select
+  UPDATE: Mar 1: 2017 - Symbols multi select
+  UPDATE: Mar 5: 2017 - Nested Symbols recursive
 */
 
 var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
@@ -109,41 +110,67 @@ function getButtonDimensionsForLayer(layer){
   }
 }
 
-// recursive for future 
-function recursiveDynamic(selection, document){
-  for (var i=0; i < [selection count]; i++) {
-    var currentLayer = [selection objectAtIndex:i],
-        parentGroup = [currentLayer parentGroup];
+function recursiveSymbol(currentLayer, context, overrides) {
+  var symbolMaster = currentLayer.symbolMaster();
+  var children = symbolMaster.children();
+  var layerIDs = {};
+  var masterButtonDimensions;      
+  log("overrides - " + overrides);
 
-    // if Symbol 
-    if( [currentLayer class] ==  MSSymbolInstance ){
-      var existingOverrides = currentLayer.overrides();
-      var symbolMaster = currentLayer.symbolMaster();
-      var children = symbolMaster.children();
-      var layerIDs = {};
-      var masterButtonDimensions;      
+  
+  
 
-      for (var j = 0; j < [children count]; j++){
-        var layer = children[j];
-        if( [layer class] ==  MSTextLayer ){
-          // change layer resizing type to "Resize Object" and switch it back again.
-          oldResizingType = layer.resizingType()
+  for (var j = 0; j < [children count]; j++){
+    var layer = children[j];
+    log( "Class - " + layer);
+    
+    if ( [layer class] ==  MSSymbolInstance ){
+      log("Calling recursive for - " + layer);
+      masterButtonDimensions = recursiveSymbol(layer, context, overrides)
+    }
 
-          if (oldResizingType != 2) {
-            layer.resizingType = 2;
-            document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Symbol Text Layer to work correctly. ");
-          }
+    if( [layer class] ==  MSTextLayer && context.command.valueForKey_onLayer('isDynamic', layer) == 1 ){
+      log("IS DYNAMIC MOTHERFUCKER");
+      
 
-          ObjectId = layer.objectID().toString()
-          var symbolInstanceValue = existingOverrides.objectForKey(0).objectForKey(ObjectId);
+      // change layer resizing type to "Resize Object" and switch it back again.
+      oldResizingType = layer.resizingType()
 
-          // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
-          oldVal = layer.stringValue()
-          layer.stringValue = symbolInstanceValue;
-          masterButtonDimensions = getButtonDimensionsForLayer(layer)
-          layer.stringValue = oldVal;
+      if (oldResizingType != 2) {
+        layer.resizingType = 2;
+        context.document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Symbol Text Layer to work correctly. ");
+      }
+
+      if (overrides != null  &&  overrides.objectForKey(0) != null ){
+        ObjectId = layer.objectID().toString()
+        var symbolInstanceValue = overrides.objectForKey(0).objectForKey(ObjectId);
+
+        if (symbolInstanceValue == null  && overrides.objectForKey(0).objectForKey(currentLayer.objectID().toString()) != null ) {
+          log("---");
+          log("---overrides.objectForKey(0) = " + overrides.objectForKey(0));
+          log("---currentLayer.objectID().toString() = " + currentLayer.objectID().toString());
+          log("---overrides.objectForKey(0) = " + overrides.objectForKey(0));
+          log("---overrides.objectForKey(0).objectForKey(currentLayer.objectID().toString()) = " + overrides.objectForKey(0).objectForKey(currentLayer.objectID().toString()));
+          log("---");
+          symbolInstanceValue = overrides.objectForKey(0).objectForKey(currentLayer.objectID().toString()).objectForKey(ObjectId);
         }
       }
+
+      // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
+      var masterButtonDimensions;
+      if (symbolInstanceValue != null){
+        oldVal = layer.stringValue()
+        layer.stringValue = symbolInstanceValue;
+        masterButtonDimensions = getButtonDimensionsForLayer(layer)
+        layer.stringValue = oldVal;
+      } else {
+        // reset back to original
+        masterButtonDimensions = getButtonDimensionsForLayer(layer)
+      }
+      
+    }
+
+    if (masterButtonDimensions != null){
 
       // update the instance width and height accordingly using the masterButtonDimensions
       var instanceWidth = masterButtonDimensions.width + masterButtonDimensions.offsetLeft + masterButtonDimensions.offsetRight
@@ -153,7 +180,19 @@ function recursiveDynamic(selection, document){
       var frame = [currentLayer frame]
       [frame setHeight:instanceHeight]
       [frame  setWidth:instanceWidth]
+    }
+  }
+}
 
+// recursive for future 
+function recursiveLayer(selection, document, context){
+  for (var i=0; i < [selection count]; i++) {
+    var currentLayer = [selection objectAtIndex:i],
+        parentGroup = [currentLayer parentGroup];
+
+    // if Symbol 
+    if( [currentLayer class] ==  MSSymbolInstance ){
+      recursiveSymbol(currentLayer, context, currentLayer.overrides())
     } else {
 
       //if( [currentLayer class] ==  MSTextLayer ){
@@ -185,6 +224,12 @@ function recursiveDynamic(selection, document){
           BGLayer.name = "BG"
           var frame = [BGLayer frame]
 
+          // context.command.setValue_forKey_onLayer(1,'isDynamicBG',BGLayer);
+          if( [currentLayer class] ==  MSTextLayer ){
+            context.command.setValue_forKey_onLayer(1,'isDynamic',currentLayer)
+            // context.command.setValue_forKey_onLayer(1,'isDynamic',BGLayer)
+          }
+          
           [frame setHeight:buttonDimensions.totalHeight]
           [frame  setWidth:buttonDimensions.totalWidth]
           frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
@@ -208,6 +253,6 @@ var onRun = function(context){
   if ([selection count] == 0) {
     alert('You need to select a Text layer', 'Selection is empty');
   } else {
-    recursiveDynamic(selection, doc)
+    recursiveLayer(selection, doc, context)
   }
 }
