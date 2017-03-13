@@ -10,13 +10,12 @@
   UPDATE: Dec 10: 2016 - Add Default values so users can customize
   UPDATE: Feb 12: 2016 - Symbols First Pass
   UPDATE: Mar 1: 2016 - Symbols multi select
-  UPDATE: Mar 13: 2016 - Running plugin on Symbols Master to update all chidren.
 */
 
 var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
 var cornerRadius = 5                       // replace with integer value.
 // var defaultPadding = '20:20'               // replace with string value eg: '20:20' or '20:50:20:50'
-var globalContext = null;
+
 
 function addLayerOfRectType(parent,rect) {
     var style = MSDefaultStyle.defaultStyle();
@@ -70,12 +69,6 @@ function getButtonDimensionsForLayer(layer){
   //   layer.name = defaultPadding;
   // };
 
-  // tag layer as isDynamicPadding
-  globalContext.command.setValue_forKey_onLayer(layer.objectID().toString(),'isDynamicPadding',layer)
-  
-  log( "isDynamicPadding -- " + globalContext.command.valueForKey_onLayer('isDynamicPadding', layer));
-
-
   var splitLayer = [layer name].split(':');
   var offsetTop,offsetRight,offsetRight,offsetLeft;
   switch(splitLayer.length) {
@@ -116,247 +109,105 @@ function getButtonDimensionsForLayer(layer){
   }
 }
 
-function recursiveSymbol(currentLayer, overrides) {
-  var symbolMaster = currentLayer.symbolMaster();
-  var children = symbolMaster.children();
-  var layerIDs = {};
-  var masterButtonDimensions;
-
-  log("recursiveSymbol - currentLayer - " + currentLayer);
-  log("recursiveSymbol - symbolMaster - " + symbolMaster);  
-  log("recursiveSymbol - children count - " + [children count]);  
-
-  for (var j = 0; j < [children count]; j++){
-    var layer = children[j];
-    
-    log("child - " + j + " - " + [layer class] + " - " + layer.objectID().toString());
-
-    if ( [layer class] ==  MSSymbolInstance ){
-      log("MSSymbolInstance - Calling recursive for - " + layer);
-      masterButtonDimensions = recursiveSymbol(layer, overrides);
-      if (masterButtonDimensions != null){
-        return masterButtonDimensions;
-      }
-    }
-
-    if(globalContext.command.valueForKey_onLayer('isDynamicPadding', layer) == layer.objectID().toString() ){
-      log("IS DYNAMIC PADDING - " + layer);
-
-      // change layer resizing type to "Resize Object" and switch it back again.
-      oldResizingType = layer.resizingType()
-
-      if (oldResizingType != 2) {
-        layer.resizingType = 2;
-        globalContext.document.displayMessage("Dynamic Button has to update the 'Resizing' option of the padded layers to work correctly. ");
-      }
-
-      if (currentLayer.resizingType() != 2){
-        currentLayer.resizingType = 2;
-      }
-
-      if (overrides != null) {
-        symbolInstanceValue = overrides.allValues().objectAtIndex(0).valueForKeyPath(layer.objectID().toString());
-
-        if(symbolInstanceValue == null){
-          var overridePath = currentLayer.objectID().toString() + "." + layer.objectID().toString()
-          log("overridePath -- " + overridePath );
-          symbolInstanceValue = overrides.allValues().objectAtIndex(0).valueForKeyPath(overridePath);
-        }
-        
-      }
-
-      // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
-      var masterButtonDimensions;
-      if (symbolInstanceValue != null){
-        log( "Override Value  -- " + symbolInstanceValue);
-
-        oldVal = layer.stringValue()
-        layer.stringValue = symbolInstanceValue;
-        masterButtonDimensions = getButtonDimensionsForLayer(layer)
-        log( "New masterButtonDimensions!! ");
-        layer.stringValue = oldVal;
-      } else {
-        // reset back to original
-
-        masterButtonDimensions = getButtonDimensionsForLayer(layer)
-        log( "Original masterButtonDimensions!! ");
-
-      }
-      
-
-    }
-
-    if (masterButtonDimensions != null){
-      log( "Returning masterButtonDimensions  -- ");
-      log( "masterButtonDimensions.x  -- " + masterButtonDimensions.x);
-      log( "masterButtonDimensions.y  -- " + masterButtonDimensions.y);
-      log("masterButtonDimensions.width - " + masterButtonDimensions.width);
-      log("masterButtonDimensions.height - " + masterButtonDimensions.height);
-      log("masterButtonDimensions.offsetTop - " + masterButtonDimensions.offsetTop);
-      log("masterButtonDimensions.offsetBottom - " + masterButtonDimensions.offsetBottom);
-      log("masterButtonDimensions.offsetLeft - " + masterButtonDimensions.offsetLeft);
-      log("masterButtonDimensions.offsetRight - " + masterButtonDimensions.offsetRight);
-      log("masterButtonDimensions.totalWidth - " + masterButtonDimensions.totalWidth);
-      log("masterButtonDimensions.totalHeight - " + masterButtonDimensions.totalHeight);
-
-      return masterButtonDimensions
-    }
-
-    // if (masterButtonDimensions != null){
-    //   log( "Applying masterButtonDimensions to -- " + currentLayer);
-    //   // update the instance width and height accordingly using the masterButtonDimensions
-    //   var instanceWidth = masterButtonDimensions.width + masterButtonDimensions.offsetLeft + masterButtonDimensions.offsetRight
-    //   var instanceHeight = masterButtonDimensions.height + masterButtonDimensions.offsetTop + masterButtonDimensions.offsetBottom
-      
-    //   // set width and height to the symbol instance motherfucker!
-    //   var frame = [currentLayer frame]
-    //   [frame setHeight:instanceHeight]
-    //   [frame  setWidth:instanceWidth]
-    // }
-  }
-}
-
 // recursive for future 
-function recursiveLayer(selection, document){
+function recursiveDynamic(selection, document){
   for (var i=0; i < [selection count]; i++) {
     var currentLayer = [selection objectAtIndex:i],
         parentGroup = [currentLayer parentGroup];
-    
-    // if SymbolInstance
+
+    // if Symbol 
     if( [currentLayer class] ==  MSSymbolInstance ){
-      if (currentLayer.overrides() == null){
-        globalContext.document.displayMessage("No overrides on this Symbol Instance");
+      var existingOverrides = currentLayer.overrides();
+      var symbolMaster = currentLayer.symbolMaster();
+      var children = symbolMaster.children();
+      var layerIDs = {};
+      var masterButtonDimensions;      
+
+      for (var j = 0; j < [children count]; j++){
+        var layer = children[j];
+        if( [layer class] ==  MSTextLayer ){
+          // change layer resizing type to "Resize Object" and switch it back again.
+          oldResizingType = layer.resizingType()
+
+          if (oldResizingType != 2) {
+            layer.resizingType = 2;
+            document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Symbol Text Layer to work correctly. ");
+          }
+
+          ObjectId = layer.objectID().toString()
+          var symbolInstanceValue = existingOverrides.objectForKey(0).objectForKey(ObjectId);
+
+          // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
+          oldVal = layer.stringValue()
+          layer.stringValue = symbolInstanceValue;
+          masterButtonDimensions = getButtonDimensionsForLayer(layer)
+          layer.stringValue = oldVal;
+        }
       }
 
-      log("MSSymbolInstance - " + currentLayer);
-      log("recursiveSymbol overrides - " + currentLayer.overrides());
-      var dimensions =  recursiveSymbol(currentLayer, currentLayer.overrides());
-      applyDimensionsToInstance(currentLayer, dimensions);
-
-    } else if([currentLayer class] ==  MSSymbolMaster){
-      // resize to fit
-      document.actionsController().actionWithID("MSResizeArtboardToFitAction").resizeArtboardToFit(nil)
-      recalculateSymbolInstances(currentLayer, document);
-    }  else {
-      var BG = getBackgroundForGroup(parentGroup),
-      buttonDimensions = getButtonDimensionsForLayer(currentLayer)
-
-      if (BG) {
-      // Update background
-        var frame = [BG frame]
-        [frame setHeight:buttonDimensions.totalHeight]
-        [frame  setWidth:buttonDimensions.totalWidth]
-
-        var clframe = [currentLayer frame]
-        var layerX = [clframe x],
-        layerY = [clframe y]
-
-        frame.x = layerX - buttonDimensions.offsetLeft;
-        frame.y = layerY - buttonDimensions.offsetTop;
-      } else {
-        // Create group and background
-        var group = MSLayerGroup.new();
-        var groupFrame = group.frame();
-        groupFrame.setConstrainProportions(false);
-        group.setName('Dynamic group');
-
-        parentGroup.addLayers([group]);
-        var BGLayer = addLayerOfRectType(group, currentLayer.rect());
-
-        BGLayer.name = "BG"
-        globalContext.command.setValue_forKey_onLayer(1,'isDynamicBG',BGLayer)
-        var frame = [BGLayer frame]
-
-        [frame setHeight:buttonDimensions.totalHeight]
-        [frame  setWidth:buttonDimensions.totalWidth]
-        frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
-        frame.y = buttonDimensions.y - buttonDimensions.offsetTop
-        
-        parentGroup.removeLayer(currentLayer);
-        var s = group.addLayers([currentLayer]);
-        currentLayer.setIsSelected(false);
-        group.resizeToFitChildrenWithOption(1);
-      }
-
-      parent = getSymbolMaster(currentLayer);
+      // update the instance width and height accordingly using the masterButtonDimensions
+      var instanceWidth = masterButtonDimensions.width + masterButtonDimensions.offsetLeft + masterButtonDimensions.offsetRight
+      var instanceHeight = masterButtonDimensions.height + masterButtonDimensions.offsetTop + masterButtonDimensions.offsetBottom
       
-      if( parent.class() == "MSSymbolMaster") {
-        // resize to fit, then recalculate all children 
-        parent.select_byExpandingSelection(true, false);
-        document.actionsController().actionWithID("MSResizeArtboardToFitAction").resizeArtboardToFit(nil);
-        recalculateSymbolInstances(parent, document);
-      }
+      // set width and height to the symbol instance motherfucker!
+      var frame = [currentLayer frame]
+      [frame setHeight:instanceHeight]
+      [frame  setWidth:instanceWidth]
+
+    } else {
+
+      //if( [currentLayer class] ==  MSTextLayer ){
+        var BG = getBackgroundForGroup(parentGroup),
+        buttonDimensions = getButtonDimensionsForLayer(currentLayer)
+
+        if (BG) {
+        // Update background
+          var frame = [BG frame]
+          [frame setHeight:buttonDimensions.totalHeight]
+          [frame  setWidth:buttonDimensions.totalWidth]
+
+          var clframe = [currentLayer frame]
+          var layerX = [clframe x],
+          layerY = [clframe y]
+
+          frame.x = layerX - buttonDimensions.offsetLeft;
+          frame.y = layerY - buttonDimensions.offsetTop;
+        } else {
+          // Create group and background
+          var group = MSLayerGroup.new();
+          var groupFrame = group.frame();
+          groupFrame.setConstrainProportions(false);
+          group.setName('Dynamic group');
+
+          parentGroup.addLayers([group]);
+          var BGLayer = addLayerOfRectType(group, currentLayer.rect());
+
+          BGLayer.name = "BG"
+          var frame = [BGLayer frame]
+
+          [frame setHeight:buttonDimensions.totalHeight]
+          [frame  setWidth:buttonDimensions.totalWidth]
+          frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
+          frame.y = buttonDimensions.y - buttonDimensions.offsetTop
+          
+          parentGroup.removeLayer(currentLayer);
+          var s = group.addLayers([currentLayer]);
+          currentLayer.setIsSelected(false);
+          group.resizeToFitChildrenWithOption(1);
+        } 
+      // }      
     }
   }  
 }
 
-function applyDimensionsToInstance( currentLayer, masterButtonDimensions){
-  if (masterButtonDimensions != null){
-    log( "Applying masterButtonDimensions to -- " + currentLayer);
-        // update the instance width and height accordingly using the masterButtonDimensions
-        var instanceWidth = masterButtonDimensions.width + masterButtonDimensions.offsetLeft + masterButtonDimensions.offsetRight
-        var instanceHeight = masterButtonDimensions.height + masterButtonDimensions.offsetTop + masterButtonDimensions.offsetBottom
-        
-        // set width and height to the symbol instance motherfucker!
-        var frame = [currentLayer frame]
-        [frame setHeight:instanceHeight]
-        [frame  setWidth:instanceWidth]
-      }
-}
-
-function recalculateSymbolInstances( currentLayer, document) {
-  var page = document.currentPage();
-  var masterObjectId = currentLayer.objectID().toString()
-
-  // Get a list of all the children symbol instances where its symbol master is this selected
-  var allpages = document.pages();
-  for (var i = 0; i < allpages.count(); i++) {
-
-    thisPage = [allpages objectAtIndex:i]
-    var children = thisPage.children();
-
-    for (var j = 0; j < children.count(); j++) {
-      var child = [children objectAtIndex:j]
-      //// log("CHILD -- " + child)
-
-      if (child.class() == "MSSymbolInstance" && child.overrides()) {
-
-        var symbolMaster = child.symbolMaster();
-
-        if (  symbolMaster.objectID().toString() == masterObjectId ) {
-          log("Child Overrides - " + child.overrides());
-          var dimensions = recursiveSymbol(child, child.overrides());
-          applyDimensionsToInstance(child, dimensions);
-        }
-      }
-    }
-  }
-}
-
-function getSymbolMaster(layer) {
-  parent = layer.parentGroup()
-
-  if(parent.class() == 'MSPage') {
-    return null;
-  }
-
-  if(parent.class() != "MSSymbolMaster" ) {
-    getSymbolMaster(parent);
-  }
-
-  return parent;
-
-}
-
 var onRun = function(context){
-  globalContext = context
   var selection = context.selection;
   var doc = context.document;
+  var page = doc.currentPage();
 
   if ([selection count] == 0) {
     alert('You need to select a Text layer', 'Selection is empty');
   } else {
-    recursiveLayer(selection, doc)
+    recursiveDynamic(selection, doc)
   }
 }
-
