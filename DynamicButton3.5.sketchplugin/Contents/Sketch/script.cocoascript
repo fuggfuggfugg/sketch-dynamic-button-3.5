@@ -135,7 +135,7 @@ function recursiveDynamic(selection, document){
           }
 
           ObjectId = layer.objectID().toString()
-          var symbolInstanceValue = existingOverrides.objectForKey(0).objectForKey(ObjectId);
+          var symbolInstanceValue = existingOverrides.objectForKey(ObjectId);
 
           // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
           oldVal = layer.stringValue()
