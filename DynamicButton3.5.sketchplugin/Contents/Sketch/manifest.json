@@ -8,6 +8,7 @@
   "bundleVersion": 1.1,
   "compatibleVersion": 3.5,
   "identifier": "me.fugg.dynamicbutton3.5",
+  "appcast": "https://api.sketchpacks.com/v1/plugins/me.fugg.dynamicbutton3.5/appcast",
   "commands": [
     {
       "script": "script.cocoascript",
