@@ -8,6 +8,7 @@
   UPDATE: Sep 19: 2016 - Better error handling
   UPDATE: Oct 25: 2016 - Remove check for Text Layer
   UPDATE: Dec 10: 2016 - Add Default values so users can customize
+  UPDATE: Feb 12: 2016 - Symbols First Pass
 */
 
 var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
@@ -56,7 +57,7 @@ function getBackgroundForGroup(group) {
 }
 
 function getButtonDimensionsForLayer(layer){
-  log("getButtonDimensionsForLayer: " + [layer frame])
+  // log("getButtonDimensionsForLayer: " + [layer frame])
   var frame = [layer frame]
   var layerHeight = [frame height],
       layerWidth =  [frame width],
@@ -108,62 +109,104 @@ function getButtonDimensionsForLayer(layer){
 }
 
 // recursive for future 
-function recursiveDynamic(selection){
+function recursiveDynamic(selection, document){
   for (var i=0; i < [selection count]; i++) {
     var currentLayer = [selection objectAtIndex:i],
         parentGroup = [currentLayer parentGroup];
 
-    //if( [currentLayer class] ==  MSTextLayer ){
+    // if Symbol 
+    if( [currentLayer class] ==  MSSymbolInstance ){
+      var existingOverrides = currentLayer.overrides();
+      var symbolMaster = currentLayer.symbolMaster();
+      var children = symbolMaster.children();
+      var layerIDs = {};
+      var masterButtonDimensions;      
 
-      var BG = getBackgroundForGroup(parentGroup),
-      buttonDimensions = getButtonDimensionsForLayer(currentLayer)
+      for (var i = 0; i < [children count]; i++){
+        var layer = children[i];
+        if( [layer class] ==  MSTextLayer ){
+          // change layer resizing type to "Resize Object" and switch it back again.
+          oldResizingType = layer.resizingType()
 
-      if (BG) {
-      // Update background
-        var frame = [BG frame]
-        [frame setHeight:buttonDimensions.totalHeight]
-        [frame  setWidth:buttonDimensions.totalWidth]
+          if (oldResizingType != 2) {
+            layer.resizingType = 2;
+            document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Symbol Text Layer to work correctly. ");
+          }
 
-        var clframe = [currentLayer frame]
-        var layerX = [clframe x],
-        layerY = [clframe y]
+          ObjectId = layer.objectID().toString()
+          var symbolInstanceValue = existingOverrides.objectForKey(0).objectForKey(ObjectId);
 
-        frame.x = layerX - buttonDimensions.offsetLeft;
-        frame.y = layerY - buttonDimensions.offsetTop;
-      } else {
-        // Create group and background
-        var group = MSLayerGroup.new();
-        var groupFrame = group.frame();
-        groupFrame.setConstrainProportions(false);
-        group.setName('Dynamic group');
+          // To get the exact width of the overriden string, I update the text in the master, get the width and reset it again.
+          oldVal = layer.stringValue()
+          layer.stringValue = symbolInstanceValue;
+          masterButtonDimensions = getButtonDimensionsForLayer(layer)
+          layer.stringValue = oldVal;
+        }
+      }
 
-        parentGroup.addLayers([group]);
-        var BGLayer = addLayerOfRectType(group, currentLayer.rect());
+      // update the instance width and height accordingly using the masterButtonDimensions
+      var instanceWidth = masterButtonDimensions.width + masterButtonDimensions.offsetLeft + masterButtonDimensions.offsetRight
+      var instanceHeight = masterButtonDimensions.height + masterButtonDimensions.offsetTop + masterButtonDimensions.offsetBottom
+      
+      // set width and height to the symbol instance motherfucker!
+      var frame = [currentLayer frame]
+      [frame setHeight:instanceHeight]
+      [frame  setWidth:instanceWidth]
 
-        BGLayer.name = "BG"
-        var frame = [BGLayer frame]
+    } else {
 
-        [frame setHeight:buttonDimensions.totalHeight]
-        [frame  setWidth:buttonDimensions.totalWidth]
-        frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
-        frame.y = buttonDimensions.y - buttonDimensions.offsetTop
-        
-        parentGroup.removeLayer(currentLayer);
-        var s = group.addLayers([currentLayer]);
-        currentLayer.setIsSelected(false);
-        group.resizeToFitChildrenWithOption(1);
-      } 
-    }      
-  //}  
+      //if( [currentLayer class] ==  MSTextLayer ){
+        var BG = getBackgroundForGroup(parentGroup),
+        buttonDimensions = getButtonDimensionsForLayer(currentLayer)
+
+        if (BG) {
+        // Update background
+          var frame = [BG frame]
+          [frame setHeight:buttonDimensions.totalHeight]
+          [frame  setWidth:buttonDimensions.totalWidth]
+
+          var clframe = [currentLayer frame]
+          var layerX = [clframe x],
+          layerY = [clframe y]
+
+          frame.x = layerX - buttonDimensions.offsetLeft;
+          frame.y = layerY - buttonDimensions.offsetTop;
+        } else {
+          // Create group and background
+          var group = MSLayerGroup.new();
+          var groupFrame = group.frame();
+          groupFrame.setConstrainProportions(false);
+          group.setName('Dynamic group');
+
+          parentGroup.addLayers([group]);
+          var BGLayer = addLayerOfRectType(group, currentLayer.rect());
+
+          BGLayer.name = "BG"
+          var frame = [BGLayer frame]
+
+          [frame setHeight:buttonDimensions.totalHeight]
+          [frame  setWidth:buttonDimensions.totalWidth]
+          frame.x = buttonDimensions.x - buttonDimensions.offsetLeft
+          frame.y = buttonDimensions.y - buttonDimensions.offsetTop
+          
+          parentGroup.removeLayer(currentLayer);
+          var s = group.addLayers([currentLayer]);
+          currentLayer.setIsSelected(false);
+          group.resizeToFitChildrenWithOption(1);
+        } 
+      // }      
+    }
+  }  
 }
 
 var onRun = function(context){
   var selection = context.selection;
   var doc = context.document;
+  var page = doc.currentPage();
 
   if ([selection count] == 0) {
     alert('You need to select a Text layer', 'Selection is empty');
   } else {
-    recursiveDynamic(selection)
+    recursiveDynamic(selection, doc)
   }
 }
