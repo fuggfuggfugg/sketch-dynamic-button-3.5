@@ -1,4 +1,5 @@
 ## Credits 
+[![Download from Sketchpacks.com](https://badges.sketchpacks.com/plugins/me.fugg.dynamicbutton3.5/version.svg)](https://api.sketchpacks.com/v1/plugins/me.fugg.dynamicbutton3.5/download) [![Compatible Sketch Version](https://badges.sketchpacks.com/plugins/me.fugg.dynamicbutton3.5/compatibility.svg)](https://sketchpacks.com/fuggfuggfugg/sketch-dynamic-button-3.5)
 
 Full Credit to https://github.com/ddwht/sketch-dynamic-button. Unfortunately, the original plugin is no longer maintained and updated for newer Sketch Versions.  
 
