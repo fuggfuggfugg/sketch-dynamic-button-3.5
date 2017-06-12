@@ -2,20 +2,11 @@
 /*
   Original code from https://github.com/ddwht/sketch-dynamic-button
   Fixed for Sketch 3.5 by Bohemian Coding
-  UPDATE: Mar 1: 2016 - Issue 1
-  UPDATE: May 19: 2016 - Update for 3.8
-  UPDATE: Jul 20: 2016 - Update for 39
-  UPDATE: Sep 19: 2016 - Better error handling
-  UPDATE: Oct 25: 2016 - Remove check for Text Layer
-  UPDATE: Dec 10: 2016 - Add Default values so users can customize
-  UPDATE: Feb 12: 2016 - Symbols First Pass
-  UPDATE: Mar 1: 2016 - Symbols multi select
+  UPDATE: Jun 11 - Merge symbols branch back to master
 */
 
 var buttonColor = [216,216,216,100]        // replace with [Red,Green,Blue,Opacity%] eg: [216,216,216,100]
 var cornerRadius = 5                       // replace with integer value.
-// var defaultPadding = '20:20'               // replace with string value eg: '20:20' or '20:50:20:50'
-
 
 function addLayerOfRectType(parent,rect) {
     var style = MSDefaultStyle.defaultStyle();
@@ -64,10 +55,6 @@ function getButtonDimensionsForLayer(layer){
       layerWidth =  [frame width],
       layerX =      [frame x],
       layerY =      [frame y]
-  
-  // if (defaultPadding) {
-  //   layer.name = defaultPadding;
-  // };
 
   var splitLayer = [layer name].split(':');
   var offsetTop,offsetRight,offsetRight,offsetLeft;
@@ -126,13 +113,15 @@ function recursiveDynamic(selection, document){
       for (var j = 0; j < [children count]; j++){
         var layer = children[j];
         if( [layer class] ==  MSTextLayer ){
-          // change layer resizing type to "Resize Object" and switch it back again.
-          oldResizingType = layer.resizingType()
 
-          if (oldResizingType != 2) {
-            layer.resizingType = 2;
-            document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Symbol Text Layer to work correctly. ");
+          hasFixedLeftTop = layer.hasFixedLeft() && layer.hasFixedTop()
+
+          if (hasFixedLeftTop == false) {
+            layer.hasFixedLeft = true
+            layer.hasFixedTop = true
+            document.displayMessage("Dynamic Button has updated the 'Resizing' option of the Master Text Layer to work correctly. ");
           }
+
 
           ObjectId = layer.objectID().toString()
           var symbolInstanceValue = existingOverrides.objectForKey(ObjectId);
@@ -153,7 +142,6 @@ function recursiveDynamic(selection, document){
       var frame = [currentLayer frame]
       [frame setHeight:instanceHeight]
       [frame  setWidth:instanceWidth]
-
     } else {
 
       //if( [currentLayer class] ==  MSTextLayer ){
@@ -172,6 +160,9 @@ function recursiveDynamic(selection, document){
 
           frame.x = layerX - buttonDimensions.offsetLeft;
           frame.y = layerY - buttonDimensions.offsetTop;
+
+          // resize parent
+          BG.parentGroup().resizeToFitChildrenWithOption(1);
         } else {
           // Create group and background
           var group = MSLayerGroup.new();
