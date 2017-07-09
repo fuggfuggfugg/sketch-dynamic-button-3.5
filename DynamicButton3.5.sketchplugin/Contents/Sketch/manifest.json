@@ -4,9 +4,9 @@
   "author": "Fugg Fugg",
   "authorEmail": "fuggfuggfugg@gmail.com",
   "homepage": "https://github.com/fuggfuggfugg/sketch-dynamic-button-3.5",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "bundleVersion": 1.1,
-  "compatibleVersion": 44.1,
+  "compatibleVersion": 45.1,
   "identifier": "me.fugg.dynamicbutton3.5",
   "appcast": "https://api.sketchpacks.com/v1/plugins/me.fugg.dynamicbutton3.5/appcast",
   "commands": [
